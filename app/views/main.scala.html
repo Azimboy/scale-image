@@ -1,0 +1,23 @@
+@import org.webjars.play.WebJarsUtil
+
+@(title: String)(content: Html)(implicit webJarsUtil: WebJarsUtil)
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>@title</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    @webJarsUtil.locate("bootstrap.min.css").css()
+    @webJarsUtil.locate("knockout.js").script()
+    @webJarsUtil.locate("jquery.min.js").script()
+    @webJarsUtil.locate("widget.js").script()
+    @webJarsUtil.locate("jquery.fileupload.js").script()
+    @webJarsUtil.locate("jquery.iframe-transport.js").script()
+    @webJarsUtil.locate("bootstrap.min.js").script()
+    <script src="@routes.Assets.versioned("lib/knockout.mapping-latest.js")"></script>
+  </head>
+  <body>
+    @content
+  </body>
+</html>

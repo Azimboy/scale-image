@@ -1,0 +1,54 @@
+@import org.webjars.play.WebJarsUtil
+
+@()(implicit webJarsUtil: WebJarsUtil)
+
+@main("Square Preview") {
+  <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-offset-3 col-xs-5">
+        <div class="text-center" style="margin-top: 30px;">
+          <a class="main-link text-uppercase" href="/"><h4><b>Resize Images</b></h4></a>
+        </div>
+        <form data-bind="attr: {action: '/api/upload?width=' + vm.upload.width() + '&height=' + vm.upload.height()}"
+          id="upload-form" enctype="multipart/form-data" method="post" role="document" style="margin-top: 15px;">
+          <div class="panel panel-default" style="margin-top: 30px;">
+            <div class="panel-body">
+              <div class="row form-group">
+                <div class="col-xs-6">
+                  <input type="number" class="form-control" id="width" placeholder="Width" data-bind="value: vm.upload.width">
+                </div>
+                <div class="col-xs-6">
+                  <input type="number" class="form-control" id="height" placeholder="Height" data-bind="value: vm.upload.height">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="form-group">
+                    <div class="input-group">
+                      <label class="input-group-btn">
+                        <span class="btn btn-default">
+                          Choose Files <input type="file" name="files[]" style="display: none;" data-bind="event:{ change: vm.onFilesSelected }" multiple>
+                        </span>
+                      </label>
+                      <input type="text" class="form-control" data-bind="value: vm.filesInfo" readonly>
+                    </div>
+                    <span class="text-warning">NOTE: Please choose files in PNG and JPG formats.</span>
+                  </div>
+                  <div id="progress">
+                    <div class="bar" style="width: 0%;"></div>
+                  </div>
+                  <strong class="text-danger text-center" data-bind="text: vm.errorText"></strong>
+                </div>
+              </div>
+            </div>
+            <div class="panel-footer">
+              <button type="submit" data-bind="click: vm.onUpload" class="btn btn-primary">Submit</button>
+              <button type="reset" data-bind="click: vm.onCancel" class="btn btn-warning pull-right">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}
