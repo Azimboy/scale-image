@@ -34,7 +34,7 @@ object ImageService extends LazyLogging {
 
   def save(image: Image): String = {
     val fileName = Random.alphanumeric.take(8).mkString
-    val filePath = s"images/$fileName.png"
+    val filePath = s"images/temp/$fileName.png"
     image.output(new File(s"public/$filePath"))
     filePath
   }

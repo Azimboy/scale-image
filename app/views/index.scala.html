@@ -6,24 +6,30 @@
   <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
   <div class="container">
     <div class="row">
-      <div class="col-xs-offset-3 col-xs-5">
+      <div class="col-sm-offset-3 col-sm-6">
         <div class="text-center" style="margin-top: 30px;">
           <a class="main-link text-uppercase" href="/"><h4><b>Resize Images</b></h4></a>
         </div>
-        <form data-bind="attr: {action: '/api/upload?width=' + vm.upload.width() + '&height=' + vm.upload.height()}"
+        <form data-bind="attr: {action: '/upload?width=' + vm.upload.width() + '&height=' + vm.upload.height()}"
           id="upload-form" enctype="multipart/form-data" method="post" role="document" style="margin-top: 15px;">
           <div class="panel panel-default" style="margin-top: 30px;">
             <div class="panel-body">
               <div class="row form-group">
-                <div class="col-xs-6">
-                  <input type="number" class="form-control" id="width" placeholder="Width" data-bind="value: vm.upload.width">
+                <div class="col-sm-6">
+                  <div class="input-group">
+                    <span class="input-group-addon">Width</span>
+                    <input type="number" class="form-control" id="width" data-bind="value: vm.upload.width, valueUpdate: 'keyup keypress'">
+                  </div>
                 </div>
                 <div class="col-xs-6">
-                  <input type="number" class="form-control" id="height" placeholder="Height" data-bind="value: vm.upload.height">
+                  <div class="input-group">
+                    <span class="input-group-addon">Height</span>
+                    <input type="number" class="form-control" id="height" data-bind="value: vm.upload.height, valueUpdate: 'keyup keypress'">
+                  </div>
                 </div>
               </div>
               <div class="row">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                   <div class="form-group">
                     <div class="input-group">
                       <label class="input-group-btn">
@@ -48,6 +54,13 @@
             </div>
           </div>
         </form>
+      </div>
+      <div class="col-sm-12" data-bind="visible: vm.paths().length > 0">
+        <div class="row" data-bind="foreach: vm.paths">
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <img data-bind="attr: {src: '/assets/' + $data}">
+          </div>
+        </div>
       </div>
     </div>
   </div>

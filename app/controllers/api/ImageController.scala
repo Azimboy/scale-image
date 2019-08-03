@@ -3,6 +3,7 @@ package controllers.api
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
 import org.webjars.play.WebJarsUtil
+import play.api.libs.json.Json
 import play.api.mvc._
 import services.ImageService._
 
@@ -16,7 +17,24 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents)
     Ok(views.html.index())
   }
 
-  def fileUpload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
+  def upload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
+    val results = request.body.files.map { filePart =>
+      for {
+        _     <- validate(filePart.filename)
+        image <- resize(filePart, width, height)
+        path  =  save(image)
+      } yield path
+    }
+
+    accumulateResults(results) match {
+      case Right(paths) =>
+        Ok(Json.obj("paths" -> Json.toJson(paths)))
+      case Left(error) =>
+        BadRequest(error)
+    }
+  }
+
+  def apiUpload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
     val results = request.body.files.map { filePart =>
       for {
         _     <- validate(filePart.filename)

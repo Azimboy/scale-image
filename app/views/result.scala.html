@@ -5,7 +5,7 @@
 @main("Image Results") {
   <ul class="">
     @for(path <- paths) {
-      <li><img src="@routes.Assets.versioned(path)" width="100" height="100"/></li>
+      <li><img src="@routes.Assets.versioned(path)"/></li>
     }
   </ul>
 }

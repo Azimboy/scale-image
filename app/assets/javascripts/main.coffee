@@ -7,29 +7,44 @@ $ ->
   vm = ko.mapping.fromJS
     upload: defaultData
     errorText: ''
+    paths: []
 
-  formData = null
   $uploadForm = $('#upload-form')
+  formData = null
   $uploadForm.fileupload
-    dataType: 'text'
+    dataType: 'json'
     autoUpload: no
     replaceFileInput: yes
     singleFileUploads: no
     multipart: yes
     add: (e, data) ->
       formData = data
+    progressall: (e, data) ->
+      console.log(data)
+      progress = parseInt(data.loaded / data.total * 100, 10)
+      $('#progress .bar').css('width', progress + '%')
     fail: (e, data) ->
+      $('#progress').hide()
       console.log(data.jqXHR)
+      if data.jqXHR?.responseText
+        vm.errorText(data.jqXHR.responseText)
     done: (e, data) ->
-      result = data.result
-      if result is 'OK'
-        alert(result)
+      $('#progress').hide()
+      if data.result.paths
+        vm.paths.removeAll()
+        for path in data.result.paths
+          vm.paths.push(path)
 
   vm.onFilesSelected = (_, event) ->
     vm.errorText('')
     vm.upload.files.removeAll()
     for file in event.target.files
-      vm.upload.files.push(file.name)
+      fileName = file.name.toLowerCase()
+      if !(/\.(jpg|jpeg|png)$/.test(fileName))
+        vm.errorText('Only PNG or JPG files are allowed.')
+        break
+      else
+        vm.upload.files.push(file.name)
 
   vm.filesInfo = ko.computed ->
     length = vm.upload.files().length
@@ -40,18 +55,16 @@ $ ->
         length + ' files'
 
   vm.onUpload = ->
-    if vm.upload.files().length > 0
-      if formData
-        formData.submit()
-      else
-        $uploadForm.fileupload('send', {files: ''})
-      yes
+    if vm.upload.files().length > 0 && formData
+      formData.submit()
+      $('#progress .bar').css('width', 0)
+      $('#progress').show()
     else
       vm.errorText('Please upload files first.')
-      no
 
   vm.onCancel = ->
     vm.errorText('')
+    vm.paths.removeAll()
     ko.mapping.fromJS(defaultData, {}, vm.upload)
     formData == null
 
