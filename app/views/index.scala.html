@@ -54,11 +54,15 @@
             </div>
           </div>
         </form>
-      </div>
-      <div class="col-sm-12" data-bind="visible: vm.paths().length > 0">
-        <div class="row" data-bind="foreach: vm.paths">
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <img data-bind="attr: {src: '/assets/' + $data}">
+        <div class="panel panel-default" data-bind="visible: vm.paths().length > 0" style="margin-top: 30px;">
+          <div class="panel-body">
+            <div class="row" data-bind="foreach: vm.paths">
+              <div class="col-md-4 col-sm-6 col-xs-12">
+                <a data-bind="attr: {href: '/assets/' + $data}" target="_blank" class="thumbnail">
+                  <img data-bind="attr: {src: '/assets/' + $data}">
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
