@@ -55,12 +55,14 @@ $ ->
         length + ' files'
 
   vm.onUpload = ->
-    if vm.upload.files().length > 0 && formData
+    if !(vm.upload.width() > 0 and vm.upload.height() > 0)
+      vm.errorText("Please insert correct width and height parameters.")
+    else if !formData
+      vm.errorText('Please upload files first.')
+    else
       formData.submit()
       $('#progress .bar').css('width', 0)
       $('#progress').show()
-    else
-      vm.errorText('Please upload files first.')
 
   vm.onCancel = ->
     vm.errorText('')
