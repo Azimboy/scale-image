@@ -6,8 +6,8 @@
 # An example controller showing a sample home page
 GET     /                           controllers.api.ImageController.index
 POST    /upload                     controllers.api.ImageController.upload(width: Int ?= 100, height: Int ?= 100)
-POST    /api/file-upload                 controllers.api.ImageController.apiUpload(width: Int ?= 100, height: Int ?= 100)
-POST    /api/data-upload                 controllers.api.ImageController.jsonUpload(width: Int ?= 100, height: Int ?= 100)
+POST    /api/file-upload            controllers.api.ImageController.apiUpload(width: Int ?= 100, height: Int ?= 100)
+POST    /api/data-upload            controllers.api.ImageController.jsonUpload(width: Int ?= 100, height: Int ?= 100)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
