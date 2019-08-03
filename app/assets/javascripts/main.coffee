@@ -60,6 +60,7 @@ $ ->
     else if !formData
       vm.errorText('Please upload files first.')
     else
+      vm.errorText('')
       formData.submit()
       $('#progress .bar').css('width', 0)
       $('#progress').show()

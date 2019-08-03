@@ -10,8 +10,9 @@ resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
 scalaVersion := "2.12.2"
 
-val imageLibs: Seq[ModuleID] = Seq(
-  "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8"
+val commonLibs: Seq[ModuleID] = Seq(
+  "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
+  "commons-io" % "commons-io" % "2.6"
 )
 
 val loggingLibs: Seq[ModuleID] = Seq(
@@ -35,4 +36,4 @@ val webjars: Seq[ModuleID] = Seq(
 
 libraryDependencies ++=
   Seq( jdbc , ehcache , ws , specs2 % Test , guice ) ++
-    imageLibs ++ loggingLibs ++ webjars
+    commonLibs ++ loggingLibs ++ webjars

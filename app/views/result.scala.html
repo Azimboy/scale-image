@@ -2,10 +2,28 @@
 
 @(paths: Seq[String])(implicit webJarsUtil: WebJarsUtil)
 
-@main("Image Results") {
-  <ul class="">
-    @for(path <- paths) {
-      <li><img src="@routes.Assets.versioned(path)"/></li>
-    }
-  </ul>
-}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Square images</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    @Html(webJarsUtil.css("css/bootstrap.min.css"))
+    @Html(webJarsUtil.script("js/bootstrap.min.js"))
+  </head>
+  <body>
+    <div class="panel panel-default" style="margin-top: 30px;">
+      <div class="panel-body">
+        <div class="row" >
+        @for(path <- paths) {
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <a href="@routes.Assets.versioned(path)" target="_blank" class="thumbnail">
+              <img src="@routes.Assets.versioned(path)"/>
+            </a>
+          </div>
+        }
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
