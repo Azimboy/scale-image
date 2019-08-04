@@ -2,30 +2,25 @@ package controllers.api
 
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
+import models.AppProtocol.{Base64Content, FilesInfo, TempFile}
 import org.apache.commons.codec.binary.Base64
+import org.apache.commons.io.FilenameUtils
 import org.webjars.play.WebJarsUtil
-import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.ImageService
-import utils.FileUtils._
+import utils.FileUtils.getBytes
 
-object ImageController {
-  case class Base64Content(content: String)
-  case class FilesInfo(files: Seq[Base64Content])
-
-  implicit val base64ContentFormat = Json.format[Base64Content]
-  implicit val filesInfoFormat = Json.format[FilesInfo]
-}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ImageController @Inject()(val controllerComponents: ControllerComponents,
                                 val imageService: ImageService)
-                               (implicit val webJarsUtil: WebJarsUtil)
+                               (implicit val webJarsUtil: WebJarsUtil,
+                                implicit val ec: ExecutionContext)
   extends BaseController
   with LazyLogging {
 
-  import ImageController._
   import imageService._
 
   def index = Action {
@@ -33,49 +28,45 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def upload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
-    validateTempFiles(request.body.files, width, height) match {
+    validate(request.body.files, width, height) match {
       case Right(paths) => Ok(Json.obj("paths" -> Json.toJson(paths)))
       case Left(error) => BadRequest(error)
     }
   }
 
   def fileUpload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
-    validateTempFiles(request.body.files, width, height) match {
+    validate(request.body.files, width, height) match {
       case Right(paths) => Ok(getFilesJson(paths))
       case Left(error) => BadRequest(error)
     }
   }
 
   def dataUpload(width: Int, height: Int) = Action(parse.json[FilesInfo]) { implicit request =>
-    processFiles(request.body.files.map(file => Base64.decodeBase64(file.content)), width, height) match {
+    val tempFiles = request.body.files.map(file => TempFile(file.fileName, None, Base64.decodeBase64(file.content)))
+    process(tempFiles, width, height) match {
       case Right(paths) => Ok(getFilesJson(paths))
       case Left(error) => BadRequest(error)
     }
   }
 
-  def fromUrl(url: String, width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
-    validateTempFiles(request.body.files, width, height) match {
-      case Right(paths) => Ok(getFilesJson(paths))
-      case Left(error) => BadRequest(error)
-    }
-  }
-
-  private def validateTempFiles(files: Seq[MultipartFormData.FilePart[TemporaryFile]], width: Int, height: Int): Either[String, Seq[String]] = {
-    files.find(file => !file.isImage || file.isTooLarge) match {
-      case Some(file) =>
-        logger.warn(file.errorMessage)
-        Left(file.errorMessage)
-      case None =>
-        processFiles(files.map { file =>
-          logger.info(s"Processing file: ${file.filename}. ContentType: ${file.contentType}. Size: ${file.sizeInfo}.")
-          getBytes(file.ref.path)
-        }, width, height)
+  def fromUrl(url: String, width: Int, height: Int) = Action.async { implicit request =>
+    val fileName = Option(FilenameUtils.getName(url))
+    download(url).map {
+      case Right(path) =>
+        val tempFiles = Seq(TempFile(fileName, None, getBytes(path)))
+        process(tempFiles, width, height) match {
+          case Right(paths) => Ok(getFilesJson(paths))
+          case Left(error) => BadRequest(error)
+        }
+      case Left(error) =>
+        BadRequest(error)
     }
   }
 
   private def getFilesJson(paths: Seq[String]): JsValue = {
     Json.toJson(FilesInfo(paths.map { path =>
-      Base64Content(Base64.encodeBase64String(getBytes(path)))
+      Base64Content(None, Base64.encodeBase64String(getBytes(path)))
     }))
   }
+
 }
