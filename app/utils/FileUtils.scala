@@ -7,7 +7,7 @@ import play.api.mvc.MultipartFormData.FilePart
 
 object FileUtils {
 
-  private val MaxFileSize = 15728640 // 15 MB
+  private val MaxFileSize = 10485760 // 10 MB
   private val MB = 1048576
   private val KB = 1024
 
