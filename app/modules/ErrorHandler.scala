@@ -18,7 +18,7 @@ class ErrorHandler @Inject()(env: Environment,
   extends DefaultHttpErrorHandler(env, config, sourceMapper, router) with LazyLogging {
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-    logger.debug(s"onClientError: statusCode = $statusCode, uri = ${request.uri}, message = $message")
+    logger.error(s"onClientError: statusCode = $statusCode, uri = ${request.uri}, message = $message")
     Future.successful(InternalServerError("Something went wrong."))
   }
 
