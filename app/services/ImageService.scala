@@ -12,13 +12,6 @@ import scala.util.{Random, Try}
 @Singleton
 class ImageService extends LazyLogging {
 
-  val ImageFormats: Set[String] = Set(".png", ".jpg", ".jpeg")
-
-  def isImage(fileName: String): Boolean = {
-    val nameInLowerCase = fileName.toLowerCase
-    ImageFormats.exists(format => nameInLowerCase.endsWith(format))
-  }
-
   def processFiles(fileBytes: Seq[Array[Byte]], width: Int, height: Int): Either[String, Seq[String]] = {
     accumulateResults(fileBytes.map { bytes =>
       Try(save(Image(bytes).scaleTo(width, height))).toEither match {

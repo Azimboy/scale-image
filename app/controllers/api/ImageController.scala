@@ -8,6 +8,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.ImageService
+import utils.FileUtils._
 
 object ImageController {
   case class Base64Content(content: String)
@@ -38,25 +39,37 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def apiUpload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
+  def fileUpload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
     validateTempFiles(request.body.files, width, height) match {
       case Right(paths) => Ok(getFilesJson(paths))
       case Left(error) => BadRequest(error)
     }
   }
 
-  def jsonUpload(width: Int, height: Int) = Action(parse.json[FilesInfo]) { implicit request =>
+  def dataUpload(width: Int, height: Int) = Action(parse.json[FilesInfo]) { implicit request =>
     processFiles(request.body.files.map(file => Base64.decodeBase64(file.content)), width, height) match {
       case Right(paths) => Ok(getFilesJson(paths))
       case Left(error) => BadRequest(error)
     }
   }
 
+  def fromUrl(url: String, width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
+    validateTempFiles(request.body.files, width, height) match {
+      case Right(paths) => Ok(getFilesJson(paths))
+      case Left(error) => BadRequest(error)
+    }
+  }
+
   private def validateTempFiles(files: Seq[MultipartFormData.FilePart[TemporaryFile]], width: Int, height: Int): Either[String, Seq[String]] = {
-    if (files.exists(filePart => imageService.isImage(filePart.filename))) {
-      imageService.processFiles(files.map(filePart => getBytes(filePart.ref.path)), width, height)
-    } else {
-      Left(s"Uploaded file is not a valid image. Only JPG and PNG files are allowed.")
+    files.find(file => !file.isImage || file.isTooLarge) match {
+      case Some(file) =>
+        logger.warn(file.errorMessage)
+        Left(file.errorMessage)
+      case None =>
+        processFiles(files.map { file =>
+          logger.info(s"Processing file: ${file.filename}. ContentType: ${file.contentType}. Size: ${file.sizeInfo}.")
+          getBytes(file.ref.path)
+        }, width, height)
     }
   }
 
