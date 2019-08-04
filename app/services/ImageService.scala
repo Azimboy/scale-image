@@ -57,7 +57,7 @@ class ImageService @Inject()(val ws: WSClient)
   def download(url: String): Future[Either[String, Path]] = {
     ws.url(url).withMethod("GET").stream().flatMap { response =>
       if (response.status == 200) {
-        val tempFilePath = Files.createTempFile("multipartBody1111", "tempFile")
+        val tempFilePath = Files.createTempFile("multipartBody", "tempFile")
         response.bodyAsSource.runWith(FileIO.toPath(tempFilePath)).map { ioResult =>
           if (ioResult.wasSuccessful) {
             Right(tempFilePath)

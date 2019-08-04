@@ -1,5 +1,3 @@
-package modules
-
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
 import play.api._
