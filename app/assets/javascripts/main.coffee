@@ -7,7 +7,7 @@ $ ->
   vm = ko.mapping.fromJS
     upload: defaultData
     errorText: ''
-    paths: []
+    urls: []
 
   $uploadForm = $('#upload-form')
   formData = null
@@ -30,10 +30,10 @@ $ ->
         vm.errorText(data.jqXHR.responseText)
     done: (e, data) ->
       $('#progress').hide()
-      if data.result.paths
-        vm.paths.removeAll()
-        for path in data.result.paths
-          vm.paths.push(path)
+      if data.result.images
+        vm.urls.removeAll()
+        for url in data.result.images
+          vm.urls.push(url)
 
   vm.onFilesSelected = (_, event) ->
     vm.errorText('')
@@ -67,7 +67,7 @@ $ ->
 
   vm.onCancel = ->
     vm.errorText('')
-    vm.paths.removeAll()
+    vm.urls.removeAll()
     ko.mapping.fromJS(defaultData, {}, vm.upload)
     formData == null
 

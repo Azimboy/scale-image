@@ -10,7 +10,7 @@
         <div class="text-center" style="margin-top: 30px;">
           <a class="main-link text-uppercase" href="/"><h4><b>Resize Images</b></h4></a>
         </div>
-        <form data-bind="attr: {action: '/upload?width=' + vm.upload.width() + '&height=' + vm.upload.height()}"
+        <form data-bind="attr: {action: '/api/file-upload?width=' + vm.upload.width() + '&height=' + vm.upload.height()}"
           id="upload-form" enctype="multipart/form-data" method="post" role="document" style="margin-top: 15px;">
           <div class="panel panel-default" style="margin-top: 30px;">
             <div class="panel-body">
@@ -54,12 +54,12 @@
             </div>
           </div>
         </form>
-        <div class="panel panel-default" data-bind="visible: vm.paths().length > 0" style="margin-top: 30px;">
+        <div class="panel panel-default" data-bind="visible: vm.urls().length > 0" style="margin-top: 30px;">
           <div class="panel-body">
-            <div class="row" data-bind="foreach: vm.paths">
+            <div class="row" data-bind="foreach: vm.urls">
               <div class="col-md-4 col-sm-6 col-xs-12">
-                <a data-bind="attr: {href: '/assets/' + $data}" target="_blank" class="thumbnail">
-                  <img data-bind="attr: {src: '/assets/' + $data}">
+                <a data-bind="attr: { href: $data.url }" target="_blank" class="thumbnail">
+                  <img data-bind="attr: { src: $data.url }">
                 </a>
               </div>
             </div>

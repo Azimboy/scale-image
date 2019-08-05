@@ -17,7 +17,7 @@ class ErrorHandler @Inject()(env: Environment,
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     logger.error(s"onClientError: statusCode = $statusCode, uri = ${request.uri}, message = $message")
-    Future.successful(InternalServerError("Something went wrong."))
+    Future.successful(InternalServerError("Something went wrong. Please try again."))
   }
 
   override def onProdServerError(request: RequestHeader, exception: UsefulException) = {
