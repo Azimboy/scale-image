@@ -19,7 +19,7 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
                                (implicit val webJarsUtil: WebJarsUtil,
                                 implicit val ec: ExecutionContext)
   extends BaseController
-  with LazyLogging {
+    with LazyLogging {
 
   import imageService._
 

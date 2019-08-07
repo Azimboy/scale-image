@@ -9,21 +9,26 @@ import com.sksamuel.scrimage.Image
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
 import models.AppProtocol.TempFile
+import play.api.Configuration
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.ws.WSClient
-import play.api.mvc.MultipartFormData
+import play.api.mvc.MultipartFormData.FilePart
 import utils.FileUtils._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Random, Try}
 
 @Singleton
-class ImageService @Inject()(val ws: WSClient)
+class ImageService @Inject()(val configuration: Configuration,
+                             val ws: WSClient)
                             (implicit val mat: Materializer,
                              implicit val ec: ExecutionContext)
   extends LazyLogging {
 
-  def validate(files: Seq[MultipartFormData.FilePart[TemporaryFile]], width: Int, height: Int): Either[String, Seq[String]] = {
+  val appConf = configuration.get[Configuration]("application")
+  val tempFilesPath = appConf.get[String]("temp-files-path")
+
+  def validate(files: Seq[FilePart[TemporaryFile]], width: Int, height: Int): Either[String, Seq[String]] = {
     files.find(file => !file.isImage || file.isTooLarge) match {
       case Some(file) =>
         logger.warn(file.errorMessage)
@@ -49,7 +54,7 @@ class ImageService @Inject()(val ws: WSClient)
 
   def save(image: Image): String = {
     val fileName = Random.alphanumeric.take(8).mkString
-    val filePath = s"images/temp/$fileName.png"
+    val filePath = s"$tempFilesPath/$fileName.png"
     image.output(new File(s"public/$filePath"))
     filePath
   }

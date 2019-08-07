@@ -8,17 +8,17 @@
     <title>@title</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-    @Html(webJarsUtil.css("css/bootstrap.min.css"))
+    @webJarsUtil.locate("css/bootstrap.min.css").css()
 
-    @Html(webJarsUtil.script("1.11.3/jquery.min.js"))
-    @Html(webJarsUtil.script("knockout.js"))
+    @webJarsUtil.locate("jquery.min.js").script()
+    @webJarsUtil.locate("knockout.js").script()
     <script src="@routes.Assets.versioned("lib/knockout.mapping-latest.js")"></script>
 
-    @Html(webJarsUtil.script("js/bootstrap.min.js"))
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
 
-    @Html(webJarsUtil.script("jquery-ui-src/1.11.4/ui/widget.js"))
-    @Html(webJarsUtil.script("jquery-file-upload/9.10.1/js/jquery.iframe-transport.js"))
-    @Html(webJarsUtil.script("jquery-file-upload/9.10.1/js/jquery.fileupload.js"))
+    @webJarsUtil.locate("jquery-ui-src/1.11.4/ui/widget.js").script()
+    @webJarsUtil.locate("jquery-file-upload/9.10.1/js/jquery.iframe-transport.js").script()
+    @webJarsUtil.locate("jquery-file-upload/9.10.1/js/jquery.fileupload.js").script()
   </head>
   <body>
     @content

@@ -12,7 +12,9 @@ scalaVersion := "2.12.2"
 
 val commonLibs: Seq[ModuleID] = Seq(
   "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
-  "commons-io" % "commons-io" % "2.6"
+  "commons-io" % "commons-io" % "2.6",
+  "commons-codec" % "commons-codec" % "1.13",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
 )
 
 val loggingLibs: Seq[ModuleID] = Seq(
@@ -24,7 +26,7 @@ val loggingLibs: Seq[ModuleID] = Seq(
 )
 
 val webjars: Seq[ModuleID] = Seq(
-  "org.webjars" %% "webjars-play" % "2.6.1",
+  "org.webjars" %% "webjars-play" % "2.7.3",
   "org.webjars" % "knockout" % "3.3.0",
   "org.webjars" % "jquery" % "1.11.3",
   "org.webjars" % "jquery-ui" % "1.11.4",
