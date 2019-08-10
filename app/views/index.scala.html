@@ -2,70 +2,90 @@
 
 @()(implicit webJarsUtil: WebJarsUtil)
 
-@main("Square Preview") {
-  <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-offset-3 col-sm-6">
-        <div class="text-center" style="margin-top: 30px;">
-          <a class="main-link text-uppercase" href="/"><h4><b>Resize Images</b></h4></a>
-        </div>
-        <form data-bind="attr: {action: '/api/file-upload?width=' + vm.upload.width() + '&height=' + vm.upload.height()}"
-          id="upload-form" enctype="multipart/form-data" method="post" role="document" style="margin-top: 15px;">
-          <div class="panel panel-default" style="margin-top: 30px;">
-            <div class="panel-body">
-              <div class="row form-group">
-                <div class="col-sm-6">
-                  <div class="input-group">
-                    <span class="input-group-addon">Width</span>
-                    <input type="number" class="form-control" id="width" data-bind="value: vm.upload.width, valueUpdate: 'keyup keypress'">
-                  </div>
-                </div>
-                <div class="col-xs-6">
-                  <div class="input-group">
-                    <span class="input-group-addon">Height</span>
-                    <input type="number" class="form-control" id="height" data-bind="value: vm.upload.height, valueUpdate: 'keyup keypress'">
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-sm-12">
-                  <div class="form-group">
-                    <div class="input-group">
-                      <label class="input-group-btn">
-                        <span class="btn btn-default">
-                          Choose Files <input type="file" name="files[]" style="display: none;" data-bind="event:{ change: vm.onFilesSelected }" multiple>
-                        </span>
-                      </label>
-                      <input type="text" class="form-control" data-bind="value: vm.filesInfo" readonly>
-                    </div>
-                    <span class="text-warning">NOTE: Please choose files in PNG and JPG formats.</span>
-                  </div>
-                  <div id="progress">
-                    <div class="bar" style="width: 0%;"></div>
-                  </div>
-                  <strong class="text-danger text-center" data-bind="text: vm.errorText"></strong>
-                </div>
-              </div>
-            </div>
-            <div class="panel-footer">
-              <button type="submit" data-bind="click: vm.onUpload" class="btn btn-primary">Submit</button>
-              <button type="reset" data-bind="click: vm.onCancel" class="btn btn-warning pull-right">Cancel</button>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Square Preview</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    @webJarsUtil.locate("bootstrap.min.css").css()
+
+    @webJarsUtil.locate("jquery.min.js").script()
+    @webJarsUtil.locate("knockout.js").script()
+    <script src="@routes.Assets.versioned("lib/knockout.mapping-latest.js")"></script>
+
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
+
+    @webJarsUtil.locate("jquery-ui-src/1.11.4/ui/widget.js").script()
+    @webJarsUtil.locate("jquery-file-upload/9.10.1/js/jquery.iframe-transport.js").script()
+    @webJarsUtil.locate("jquery-file-upload/9.10.1/js/jquery.fileupload.js").script()
+  </head>
+  <body>
+    <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-offset-3 col-sm-6">
+          <div class="text-center" style="margin-top: 30px;">
+            <a class="main-link text-uppercase" href="/"><h4><b>Resize Images</b></h4></a>
           </div>
-        </form>
-        <div class="panel panel-default" data-bind="visible: vm.urls().length > 0" style="margin-top: 30px;">
-          <div class="panel-body">
-            <div class="row" data-bind="foreach: vm.urls">
-              <div class="col-md-4 col-sm-6 col-xs-12">
-                <a data-bind="attr: { href: $data.url }" target="_blank" class="thumbnail">
-                  <img data-bind="attr: { src: $data.url }">
-                </a>
+          <form data-bind="attr: {action: '/api/file-upload?width=' + vm.upload.width() + '&height=' + vm.upload.height()}"
+            id="upload-form" enctype="multipart/form-data" method="post" role="document" style="margin-top: 15px;">
+            <div class="panel panel-default" style="margin-top: 30px;">
+              <div class="panel-body">
+                <div class="row form-group">
+                  <div class="col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-addon">Width</span>
+                      <input type="number" class="form-control" id="width" data-bind="value: vm.upload.width, valueUpdate: 'keyup keypress'">
+                    </div>
+                  </div>
+                  <div class="col-xs-6">
+                    <div class="input-group">
+                      <span class="input-group-addon">Height</span>
+                      <input type="number" class="form-control" id="height" data-bind="value: vm.upload.height, valueUpdate: 'keyup keypress'">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="form-group">
+                      <div class="input-group">
+                        <label class="input-group-btn">
+                          <span class="btn btn-default">
+                            Choose Files <input type="file" name="files[]" style="display: none;" data-bind="event:{ change: vm.onFilesSelected }" multiple>
+                          </span>
+                        </label>
+                        <input type="text" class="form-control" data-bind="value: vm.filesInfo" readonly>
+                      </div>
+                      <span class="text-warning">NOTE: Please choose files in PNG and JPG formats.</span>
+                    </div>
+                    <div id="progress">
+                      <div class="bar" style="width: 0%;"></div>
+                    </div>
+                    <strong class="text-danger text-center" data-bind="text: vm.errorText"></strong>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <button type="submit" data-bind="click: vm.onUpload" class="btn btn-primary">Submit</button>
+                <button type="reset" data-bind="click: vm.onCancel" class="btn btn-warning pull-right">Cancel</button>
+              </div>
+            </div>
+          </form>
+          <div class="panel panel-default" data-bind="visible: vm.urls().length > 0" style="margin-top: 30px;">
+            <div class="panel-body">
+              <div class="row" data-bind="foreach: vm.urls">
+                <div class="col-md-4 col-sm-6 col-xs-12">
+                  <a data-bind="attr: { href: $data.url }" target="_blank" class="thumbnail">
+                    <img data-bind="attr: { src: $data.url }">
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-}
+  </body>
+</html>
+

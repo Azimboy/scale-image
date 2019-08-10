@@ -8,13 +8,14 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.8"
 
 val commonLibs: Seq[ModuleID] = Seq(
   "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
   "commons-io" % "commons-io" % "2.6",
   "commons-codec" % "commons-codec" % "1.13",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
+  "org.mockito" % "mockito-core" % "3.0.0" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.0" % Test
 )
 
 val loggingLibs: Seq[ModuleID] = Seq(
@@ -37,5 +38,5 @@ val webjars: Seq[ModuleID] = Seq(
 )
 
 libraryDependencies ++=
-  Seq( jdbc , ehcache , ws , specs2 % Test , guice ) ++
+  Seq( jdbc , ehcache , ws , guice ) ++
     commonLibs ++ loggingLibs ++ webjars

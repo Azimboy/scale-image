@@ -16,10 +16,17 @@ class ErrorHandler @Inject()(env: Environment,
   extends DefaultHttpErrorHandler(env, config, sourceMapper, router) with LazyLogging {
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-    if (!request.uri.contains("favicon.ico")) {
-      logger.error(s"onClientError: statusCode = $statusCode, uri = ${request.uri}, message = $message")
+    val result = statusCode match {
+      case 500 =>
+        logger.error(s"ClientError: statusCode = $statusCode, uri = ${request.uri}, message = $message")
+        InternalServerError("Something went wrong. Please try again.")
+      case 404 =>
+        NotFound("Page not found.")
+      case _ =>
+        logger.warn(s"onClientError: statusCode = $statusCode, uri = ${request.uri}, message = $message")
+        BadRequest("Please try again.")
     }
-    Future.successful(InternalServerError("Something went wrong. Please try again."))
+    Future.successful(result)
   }
 
   override def onProdServerError(request: RequestHeader, exception: UsefulException) = {

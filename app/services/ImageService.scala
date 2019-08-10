@@ -26,7 +26,7 @@ class ImageService @Inject()(val configuration: Configuration,
   extends LazyLogging {
 
   val appConf = configuration.get[Configuration]("application")
-  val tempFilesPath = appConf.get[String]("temp-files-path")
+  val tempFilesFolder = appConf.get[String]("temp-files-path")
 
   def validate(files: Seq[FilePart[TemporaryFile]], width: Int, height: Int): Either[String, Seq[String]] = {
     files.find(file => !file.isImage || file.isTooLarge) match {
@@ -54,7 +54,7 @@ class ImageService @Inject()(val configuration: Configuration,
 
   def save(image: Image): String = {
     val fileName = Random.alphanumeric.take(8).mkString
-    val filePath = s"$tempFilesPath/$fileName.png"
+    val filePath = s"$tempFilesFolder/$fileName.png"
     image.output(new File(s"public/$filePath"))
     filePath
   }
