@@ -44,9 +44,14 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
     validate(request.body.files, width, height)
   }
 
-  def dataUpload(width: Int, height: Int) = Action(parse.json[FilesInfo]) { implicit request =>
-    val tempFiles = request.body.files.map(file => TempFile(file.fileName, None, Base64.decodeBase64(file.content)))
-    process(tempFiles, width, height)
+  def dataUpload(width: Int, height: Int) = Action { implicit request =>
+    request.body.asJson.flatMap(_.asOpt[FilesInfo]) match {
+      case Some(filesInfo) =>
+        val tempFiles = filesInfo.files.map(file => TempFile(file.fileName, None, Base64.decodeBase64(file.content)))
+        process(tempFiles, width, height)
+      case None =>
+        BadRequest("Please upload a valid json file.")
+    }
   }
 
   def fromUrl(url: String, width: Int, height: Int) = Action.async { implicit request =>

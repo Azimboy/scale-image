@@ -1,26 +1,25 @@
 package controllers.api
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
-import com.typesafe.config.ConfigFactory
+import akka.stream.ActorMaterializer
 import controllers.AssetsFinder
-import models.AppProtocol.TempFile
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.JsValue
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.ImageService
 import utils.TestFileUtils._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ImageControllerTest extends PlaySpec with MockitoSugar {
 
   implicit val ec = ExecutionContext.Implicits.global
-  implicit val actorSystem = ActorSystem("ImageControllerTest")
+  implicit val actorSystem = ActorSystem("ImageControllerTestAC")
   implicit val actorMaterializer = ActorMaterializer()
 
   implicit val mockAssets = mock[AssetsFinder]
@@ -28,16 +27,21 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
   val mockImageService = mock[ImageService]
   val controller = new ImageController(stubControllerComponents(), mockImageService)
 
-  def fileUpload(files: String*) = {
-    val fakeReq = getFakeRequest("/api/file-upload", files: _*)
-    controller.fileUpload(100, 100)(fakeReq)
+  def fileUpload(files: String*): Future[Result] = {
+    val request = getFakeRequest("/api/file-upload", files: _*)
+    controller.fileUpload(100, 100)(request)
   }
 
-  def dataUpload(jsonBody: JsValue) = {
-    val fakeReq = FakeRequest(POST, "/api/data-upload")
-      .withHeaders("Content-Type" -> "application/json")
+  def dataUpload(jsonBody: JsValue): Future[Result] = {
+    val request = FakeRequest(POST, "/api/data-upload")
+      .withHeaders(CONTENT_TYPE -> JSON)
       .withJsonBody(jsonBody)
-    controller.dataUpload(100, 100)(fakeReq)
+    controller.dataUpload(100, 100)(request)
+  }
+
+  def fromUrl(url: String): Future[Result] = {
+    val request = FakeRequest(POST, "/api/from-url")
+    controller.fromUrl(url, 100, 100)(request)
   }
 
   "ImageController" should {
@@ -47,7 +51,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
       val result = controller.index(FakeRequest())
 
       status(result) mustBe OK
-      contentType(result) mustBe Some("text/html")
+      contentType(result) mustBe Some(HTML)
       contentAsString(result) must include("Scale Image")
     }
 
@@ -56,7 +60,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
       val result = fileUpload("test1.png")
 
       status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
+      contentType(result) mustBe Some(JSON)
     }
 
     "successfully upload multiple files with status OK" in {
@@ -64,7 +68,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
       val result = fileUpload("test1.png", "test2.jpg", "test3.jpg")
 
       status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
+      contentType(result) mustBe Some(JSON)
     }
 
     "fail upload multiple files with status BAD_REQUEST" in {
@@ -72,24 +76,57 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
       val result = fileUpload("test6.csv")
 
       status(result) mustBe BAD_REQUEST
-      contentType(result) mustBe Some("text/plain")
+      contentType(result) mustBe Some(TEXT)
     }
 
-    "successfully upload base64 data json with status OK" in {
-      when(mockImageService.process(any[Seq[TempFile]], any(), any())).thenReturn(Right(Seq("")))
+    "successfully upload base64 content data json with status OK" in {
+      when(mockImageService.process(any(), any(), any())).thenReturn(Right(Seq("")))
+      val result = dataUpload(base64FileJson)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some(JSON)
+    }
+
+    "successfully upload base64 contents data json with status OK" in {
+      when(mockImageService.process(any(), any(), any())).thenReturn(Right(Seq("")))
       val result = dataUpload(base64FilesJson)
 
-      result.map(println)
       status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
+      contentType(result) mustBe Some(JSON)
     }
 
-    "fail upload base64 data json with status BAD_REQUEST" in {
+    "fail upload base64 data invalid json with status BAD_REQUEST" in {
       when(mockImageService.process(any(), any(), any())).thenReturn(Left(""))
       val result = dataUpload(base64FileJson)
 
       status(result) mustBe BAD_REQUEST
-      contentType(result) mustBe Some("text/plain")
+      contentType(result) mustBe Some(TEXT)
+    }
+
+    "fail upload base64 data json with status BAD_REQUEST" in {
+      when(mockImageService.process(any(), any(), any())).thenReturn(Right(Seq("")))
+      val result = dataUpload(invalidJson)
+
+      status(result) mustBe BAD_REQUEST
+      contentType(result) mustBe Some(TEXT)
+      contentAsString(result) mustBe "Please upload a valid json file."
+    }
+
+    "successfully load image from external url with status OK" in {
+      when(mockImageService.download(any())).thenReturn(Future.successful(Right(getTestJpgFile)))
+      val result = fromUrl(imageUrl)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some(JSON)
+    }
+
+    "fail load image from external url with status BAD_REQUEST" in {
+      when(mockImageService.download(any())).thenReturn(Future.successful(Left("Error occurred during downloading file.")))
+      val result = fromUrl(imageUrl)
+
+      status(result) mustBe BAD_REQUEST
+      contentType(result) mustBe Some(TEXT)
+      contentAsString(result) mustBe "Error occurred during downloading file."
     }
 
   }
