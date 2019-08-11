@@ -1,7 +1,5 @@
 package controllers.api
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import controllers.AssetsFinder
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
@@ -12,6 +10,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.ImageService
+import utils.StubData._
 import utils.TestFileUtils._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,8 +18,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class ImageControllerTest extends PlaySpec with MockitoSugar {
 
   implicit val ec = ExecutionContext.Implicits.global
-  implicit val actorSystem = ActorSystem("ImageControllerTestAC")
-  implicit val actorMaterializer = ActorMaterializer()
 
   implicit val mockAssets = mock[AssetsFinder]
 
