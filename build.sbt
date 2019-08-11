@@ -1,4 +1,4 @@
-name := "SquarePreview"
+name := "scale-image"
 
 version := "1.0"
 
