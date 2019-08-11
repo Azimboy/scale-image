@@ -1,11 +1,11 @@
 package controllers.api
 
 import com.typesafe.scalalogging.LazyLogging
+import controllers.AssetsFinder
 import javax.inject._
 import models.AppProtocol.{FilesInfo, TempFile}
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.FilenameUtils
-import org.webjars.play.WebJarsUtil
 import play.api.libs.json.{JsArray, JsString, JsValue, Json}
 import play.api.mvc._
 import services.ImageService
@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class ImageController @Inject()(val controllerComponents: ControllerComponents,
                                 val imageService: ImageService)
-                               (implicit val webJarsUtil: WebJarsUtil,
+                               (implicit val assets: AssetsFinder,
                                 implicit val ec: ExecutionContext)
   extends BaseController
     with LazyLogging {
