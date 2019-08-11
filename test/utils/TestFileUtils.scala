@@ -29,11 +29,11 @@ object TestFileUtils {
   def getTestPngFile = getTestFiles("test1.png").head
   def getTestJpgFile = getTestFiles("test2.jpg").head
 
-  def getTestFiles(fileNames: String*): Seq[Path] = {
-    fileNames.map(TestFilesPath.resolve)
+  def getTestFiles(fileNames: String*): List[Path] = {
+    fileNames.map(TestFilesPath.resolve).toList
   }
 
-  def getFileParts(fileNames: String*): Seq[FilePart[TemporaryFile]] = {
+  def getFileParts(fileNames: String*): List[FilePart[TemporaryFile]] = {
     fileNames.map { fileName =>
       FilePart[TemporaryFile](
         key = "contentFile",
@@ -41,10 +41,10 @@ object TestFileUtils {
         contentType = Some("Content-Type: multipart/form-data"),
         ref = SingletonTemporaryFileCreator.create(TestFilesPath.resolve(fileName))
       )
-    }
+    }.toList
   }
 
-  def getTempFiles(fileParts: Seq[FilePart[TemporaryFile]]): Seq[TempFile] = {
+  def getTempFiles(fileParts: List[FilePart[TemporaryFile]]): List[TempFile] = {
     fileParts.map(file => TempFile(Some(file.filename), file.contentType, getBytes(file.ref.path)))
   }
 

@@ -1,8 +1,16 @@
 package utils
 
+import models.AppProtocol.Dimension
 import play.api.libs.json.Json
 
+import scala.concurrent.Future
+
 object StubData {
+
+  val futureRight = Future.successful(Right(List("")))
+  val futureLeft = Future.successful(Left(""))
+
+  val dimension = Dimension(100, 100)
 
   val base64FileJson = Json.parse("""{
     "files": [

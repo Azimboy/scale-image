@@ -75,13 +75,6 @@ class ImageService @Inject()(val configuration: Configuration,
     }.sequence.map(accumulateResults)
   }
 
-  private def getResults(bytes: Array[Byte], dimension: Dimension): EitherT[Future, String, String] = {
-    for {
-      image <- EitherT(scale(bytes, dimension))
-      path <- EitherT(save(image))
-    } yield path
-  }
-
   private def scale(bytes: Array[Byte], dimension: Dimension): Future[Either[String, Image]] = {
     Future {
       Right(Image(bytes).scaleTo(dimension.width, dimension.height))
@@ -101,6 +94,13 @@ class ImageService @Inject()(val configuration: Configuration,
       logger.error(s"Error occurred during saving image.", error)
       Left("Error occurred during saving image.")
     }
+  }
+
+  private def getResults(bytes: Array[Byte], dimension: Dimension): EitherT[Future, String, String] = {
+    for {
+      image <- EitherT(scale(bytes, dimension))
+      path <- EitherT(save(image))
+    } yield path
   }
 
   private def accumulateResults(results: List[Either[String, String]]): Either[String, List[String]] = {

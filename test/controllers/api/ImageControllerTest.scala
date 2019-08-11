@@ -53,7 +53,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
     }
 
     "successfully upload single file with status OK" in {
-      when(mockImageService.validate(any(), any(), any())).thenReturn(Right(Seq("")))
+      when(mockImageService.validate(any(), any())).thenReturn(futureRight)
       val result = fileUpload("test1.png")
 
       status(result) mustBe OK
@@ -61,7 +61,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
     }
 
     "successfully upload multiple files with status OK" in {
-      when(mockImageService.validate(any(), any(), any())).thenReturn(Right(Seq("")))
+      when(mockImageService.validate(any(), any())).thenReturn(futureRight)
       val result = fileUpload("test1.png", "test2.jpg", "test3.jpg")
 
       status(result) mustBe OK
@@ -69,7 +69,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
     }
 
     "fail upload multiple files with status BAD_REQUEST" in {
-      when(mockImageService.validate(any(), any(), any())).thenReturn(Left(""))
+      when(mockImageService.validate(any(), any())).thenReturn(futureLeft)
       val result = fileUpload("test6.csv")
 
       status(result) mustBe BAD_REQUEST
@@ -77,7 +77,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
     }
 
     "successfully upload base64 content data json with status OK" in {
-      when(mockImageService.process(any(), any(), any())).thenReturn(Right(Seq("")))
+      when(mockImageService.process(any(), any())).thenReturn(futureRight)
       val result = dataUpload(base64FileJson)
 
       status(result) mustBe OK
@@ -85,7 +85,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
     }
 
     "successfully upload base64 contents data json with status OK" in {
-      when(mockImageService.process(any(), any(), any())).thenReturn(Right(Seq("")))
+      when(mockImageService.process(any(), any())).thenReturn(futureRight)
       val result = dataUpload(base64FilesJson)
 
       status(result) mustBe OK
@@ -93,7 +93,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
     }
 
     "fail upload base64 data invalid json with status BAD_REQUEST" in {
-      when(mockImageService.process(any(), any(), any())).thenReturn(Left(""))
+      when(mockImageService.process(any(), any())).thenReturn(futureLeft)
       val result = dataUpload(base64FileJson)
 
       status(result) mustBe BAD_REQUEST
@@ -101,7 +101,7 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
     }
 
     "fail upload base64 data json with status BAD_REQUEST" in {
-      when(mockImageService.process(any(), any(), any())).thenReturn(Right(Seq("")))
+      when(mockImageService.process(any(), any())).thenReturn(futureRight)
       val result = dataUpload(invalidJson)
 
       status(result) mustBe BAD_REQUEST
