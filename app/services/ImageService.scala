@@ -1,14 +1,17 @@
 package services
 
-import java.io.File
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.FileIO
+import cats.data.EitherT
+import cats.instances.future._
+import cats.instances.list._
+import cats.syntax.traverse._
 import com.sksamuel.scrimage.Image
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
-import models.AppProtocol.TempFile
+import models.AppProtocol.{Dimension, TempFile}
 import play.api.Configuration
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.ws.WSClient
@@ -16,7 +19,7 @@ import play.api.mvc.MultipartFormData.FilePart
 import utils.FileUtils._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Random, Try}
+import scala.util.Random
 
 @Singleton
 class ImageService @Inject()(val configuration: Configuration,
@@ -28,35 +31,19 @@ class ImageService @Inject()(val configuration: Configuration,
   val appConf = configuration.get[Configuration]("application")
   val tempFilesFolder = appConf.get[String]("temp-files-path")
 
-  def validate(files: Seq[FilePart[TemporaryFile]], width: Int, height: Int): Either[String, Seq[String]] = {
+  val TempFilesPath = Paths.get(tempFilesFolder)
+
+  Files.createDirectories(TempFilesPath)
+
+  def validate(files: List[FilePart[TemporaryFile]], dimension: Dimension): Future[Either[String, List[String]]] = {
     files.find(file => !file.isImage || file.isTooLarge) match {
       case Some(file) =>
         logger.warn(file.errorMessage)
-        Left(file.errorMessage)
+        Future.successful(Left(file.errorMessage))
       case None =>
         val tempFiles = files.map(file => TempFile(Some(file.filename), file.contentType, getBytes(file.ref.path)))
-        process(tempFiles, width, height)
+        process(tempFiles, dimension)
     }
-  }
-
-  def process(tempFiles: Seq[TempFile], width: Int, height: Int): Either[String, Seq[String]] = {
-    accumulateResults(tempFiles.map { tempFile =>
-      logger.info(s"Processing file: ${tempFile.fileName}. ContentType: ${tempFile.contentType}. Size: ${getSize(tempFile.content.length)}.")
-      Try(save(Image(tempFile.content).scaleTo(width, height))).toEither match {
-        case Right(path) =>
-          Right(path)
-        case Left(error) =>
-          logger.error(s"Error occurred during resizing image.", error)
-          Left(s"Error occurred during resizing file. Please upload another image file.")
-      }
-    })
-  }
-
-  def save(image: Image): String = {
-    val fileName = Random.alphanumeric.take(8).mkString
-    val filePath = s"$tempFilesFolder/$fileName.png"
-    image.output(new File(s"public/$filePath"))
-    filePath
   }
 
   def download(url: String): Future[Either[String, Path]] = {
@@ -81,8 +68,43 @@ class ImageService @Inject()(val configuration: Configuration,
     }
   }
 
-  private def accumulateResults(results: Seq[Either[String, String]]): Either[String, Seq[String]] = {
-    results.foldRight(Right(Nil): Either[String, Seq[String]]) { (item, acc) =>
+  def process(tempFiles: List[TempFile], dimension: Dimension): Future[Either[String, List[String]]] = {
+    tempFiles.map { tempFile =>
+      logger.info(s"Processing file: ${tempFile.fileName}. ContentType: ${tempFile.contentType}. Size: ${getSize(tempFile.content.length)}.")
+      getResults(tempFile.content, dimension).value
+    }.sequence.map(accumulateResults)
+  }
+
+  private def getResults(bytes: Array[Byte], dimension: Dimension): EitherT[Future, String, String] = {
+    for {
+      image <- EitherT(scale(bytes, dimension))
+      path <- EitherT(save(image))
+    } yield path
+  }
+
+  private def scale(bytes: Array[Byte], dimension: Dimension): Future[Either[String, Image]] = {
+    Future {
+      Right(Image(bytes).scaleTo(dimension.width, dimension.height))
+    }.recover { case error =>
+      logger.error(s"Error occurred during scaling image.", error)
+      Left("Error occurred during scaling image.")
+    }
+  }
+
+  private def save(image: Image): Future[Either[String, String]] = {
+    Future {
+      val fileName = s"${Random.alphanumeric.take(10).mkString}.png"
+      val filePath = TempFilesPath.resolve(fileName)
+      image.output(filePath)
+      Right(filePath.subpath(1, filePath.getNameCount).toString)
+    }.recover { case error =>
+      logger.error(s"Error occurred during saving image.", error)
+      Left("Error occurred during saving image.")
+    }
+  }
+
+  private def accumulateResults(results: List[Either[String, String]]): Either[String, List[String]] = {
+    results.foldRight(Right(Nil): Either[String, List[String]]) { (item, acc) =>
       for {
         paths <- acc.right
         currentPath <- item.right

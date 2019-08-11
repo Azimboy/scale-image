@@ -3,7 +3,7 @@ package controllers.api
 import com.typesafe.scalalogging.LazyLogging
 import controllers.AssetsFinder
 import javax.inject._
-import models.AppProtocol.{FilesInfo, TempFile}
+import models.AppProtocol.{Dimension, FilesInfo, TempFile}
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.FilenameUtils
 import play.api.libs.json.{JsArray, JsString, JsValue, Json}
@@ -11,7 +11,7 @@ import play.api.mvc._
 import services.ImageService
 import utils.FileUtils.getBytes
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ImageController @Inject()(val controllerComponents: ControllerComponents,
@@ -23,12 +23,8 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
 
   import imageService._
 
-  def index = Action {
-    Ok(views.html.index())
-  }
-
-  implicit def getResult(result: Either[String, Seq[String]])(implicit requestHeader: RequestHeader): Result = {
-    result match {
+  implicit def getResult(result: Future[Either[String, List[String]]])(implicit requestHeader: RequestHeader, ec: ExecutionContext): Future[Result] = {
+    result.map {
       case Right(paths) => Ok(getImageUrlsAsJson(paths))
       case Left(error) => BadRequest(error)
     }
@@ -40,28 +36,32 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
     }))
   }
 
-  def fileUpload(width: Int, height: Int) = Action(parse.multipartFormData) { implicit request =>
-    validate(request.body.files, width, height)
+  def index = Action {
+    Ok(views.html.index())
   }
 
-  def dataUpload(width: Int, height: Int) = Action { implicit request =>
+  def fileUpload(width: Int, height: Int) = Action.async(parse.multipartFormData) { implicit request =>
+    validate(request.body.files.toList, Dimension(width, height))
+  }
+
+  def dataUpload(width: Int, height: Int) = Action.async { implicit request =>
     request.body.asJson.flatMap(_.asOpt[FilesInfo]) match {
       case Some(filesInfo) =>
         val tempFiles = filesInfo.files.map(file => TempFile(file.fileName, None, Base64.decodeBase64(file.content)))
-        process(tempFiles, width, height)
+        process(tempFiles.toList, Dimension(width, height))
       case None =>
-        BadRequest("Please upload a valid json file.")
+        Future.successful(BadRequest("Please upload a valid json file."))
     }
   }
 
   def fromUrl(url: String, width: Int, height: Int) = Action.async { implicit request =>
     val fileName = Option(FilenameUtils.getName(url))
-    download(url).map {
+    download(url).flatMap {
       case Right(path) =>
-        val tempFiles = Seq(TempFile(fileName, None, getBytes(path)))
-        process(tempFiles, width, height)
+        val tempFiles = List(TempFile(fileName, None, getBytes(path)))
+        process(tempFiles, Dimension(width, height))
       case Left(error) =>
-        BadRequest(error)
+        Future.successful(BadRequest(error))
     }
   }
 

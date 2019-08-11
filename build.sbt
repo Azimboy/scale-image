@@ -10,14 +10,19 @@ resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
 scalaVersion := "2.12.8"
 
+scalacOptions += "-Ypartial-unification"
+
 val commonLibs: Seq[ModuleID] = Seq(
   "com.sksamuel.scrimage" %% "scrimage-core" % "2.1.8",
+
+  "org.typelevel" %% "cats-core" % "2.0.0-M4",
 
   "commons-io" % "commons-io" % "2.6",
   "commons-codec" % "commons-codec" % "1.13",
 
   "org.mockito" % "mockito-core" % "3.0.0" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.0" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.0" % Test,
+  "de.leanovate.play-mockws" %% "play-mockws" % "2.7.1" % Test
 )
 
 val loggingLibs: Seq[ModuleID] = Seq(
