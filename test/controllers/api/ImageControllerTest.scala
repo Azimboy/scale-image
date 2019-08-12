@@ -25,20 +25,15 @@ class ImageControllerTest extends PlaySpec with MockitoSugar {
   val controller = new ImageController(stubControllerComponents(), mockImageService)
 
   def fileUpload(files: String*): Future[Result] = {
-    val request = getFakeRequest("/api/file-upload", files: _*)
-    controller.fileUpload(100, 100)(request)
+    controller.fileUpload(100, 100)(apiFileUpload(files: _*))
   }
 
   def dataUpload(jsonBody: JsValue): Future[Result] = {
-    val request = FakeRequest(POST, "/api/data-upload")
-      .withHeaders(CONTENT_TYPE -> JSON)
-      .withJsonBody(jsonBody)
-    controller.dataUpload(100, 100)(request)
+    controller.dataUpload(100, 100)(apiDataUpload(jsonBody))
   }
 
   def fromUrl(url: String): Future[Result] = {
-    val request = FakeRequest(POST, "/api/from-url")
-    controller.fromUrl(url, 100, 100)(request)
+    controller.fromUrl(url, 100, 100)(apiFromUrl(url))
   }
 
   "ImageController" should {

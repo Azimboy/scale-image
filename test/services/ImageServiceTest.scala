@@ -1,44 +1,15 @@
 package services
 
-import java.nio.file.Files
-
-import com.sksamuel.scrimage.Image
-import mockws.MockWS
 import mockws.MockWSHelpers._
-import org.scalatest.{AsyncFlatSpec, AsyncFunSuite, MustMatchers}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.play.PlaySpec
-import play.api.http.{DefaultFileMimeTypesProvider, HttpConfiguration}
-import play.api.mvc.Results.{NotFound, Ok}
-import play.api.test.Helpers.GET
-import play.api.{Configuration, Environment}
+import org.scalatest.{AsyncFunSuite, MustMatchers}
 import utils.StubData.dimension
-import utils.TestFileUtils._
+import utils.TestFileUtils.{configuration, getFileParts, getTempFiles, mockWs}
 
 import scala.concurrent.ExecutionContext
 
 class ImageServiceTest extends AsyncFunSuite with MustMatchers {
 
-  private val environment = Environment.simple()
-  private val config = Configuration.load(environment)
-  private val httpConfiguration = HttpConfiguration.fromConfiguration(config, environment)
-  private implicit val defaultFileMimeTypes = new DefaultFileMimeTypesProvider(httpConfiguration.fileMimeTypes).get
-
   implicit val ec = ExecutionContext.Implicits.global
-
-  val mockWs = MockWS {
-    case (GET, fileName) =>
-      Action {
-        val filePath = TestFilesPath.resolve(fileName)
-        if (Files.exists(filePath)) {
-          Ok.sendPath(filePath)
-        } else {
-          NotFound("File not found.")
-        }
-      }
-    case _ =>
-      Action { NotFound("Url not found.") }
-  }
 
   val imageService = new ImageService(configuration, mockWs)
 

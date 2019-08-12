@@ -40,8 +40,13 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
     Ok(views.html.index())
   }
 
-  def fileUpload(width: Int, height: Int) = Action.async(parse.multipartFormData) { implicit request =>
-    validate(request.body.files.toList, Dimension(width, height))
+  def fileUpload(width: Int, height: Int) = Action.async { implicit request =>
+    request.body.asMultipartFormData match {
+      case Some(multipartData) =>
+        validate(multipartData.files.toList, Dimension(width, height))
+      case None =>
+        Future.successful(BadRequest("Please upload a valid image files."))
+    }
   }
 
   def dataUpload(width: Int, height: Int) = Action.async { implicit request =>
