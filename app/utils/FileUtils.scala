@@ -11,6 +11,7 @@ object FileUtils {
   private val MB = 1048576
   private val KB = 1024
 
+  private val BadChars = """\/|\.\.|\?|\*|:|\\""".r // / .. ? * : \
   private val ImageFormats: Set[String] = Set("png", "jpg", "jpeg")
 
   implicit class FileChecker(filePart: FilePart[TemporaryFile]) {
@@ -52,6 +53,10 @@ object FileUtils {
     } else {
       s"$fileLength B"
     }
+  }
+
+  def isCorrectFileName(name: String): Boolean = {
+    BadChars.findFirstIn(name).isEmpty
   }
 
 }

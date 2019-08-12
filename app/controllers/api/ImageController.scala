@@ -25,14 +25,14 @@ class ImageController @Inject()(val controllerComponents: ControllerComponents,
 
   implicit def getResult(result: Future[Either[String, List[String]]])(implicit requestHeader: RequestHeader, ec: ExecutionContext): Future[Result] = {
     result.map {
-      case Right(paths) => Ok(getImageUrlsAsJson(paths))
+      case Right(fileIds) => Ok(getImageUrlsAsJson(fileIds))
       case Left(error) => BadRequest(error)
     }
   }
 
-  private def getImageUrlsAsJson(paths: Seq[String])(implicit requestHeader: RequestHeader): JsValue = {
-    Json.obj("images" -> JsArray(paths.map { path =>
-      Json.obj("url" -> JsString(controllers.routes.Assets.versioned(path).absoluteURL()))
+  private def getImageUrlsAsJson(fileIds: Seq[String])(implicit requestHeader: RequestHeader): JsValue = {
+    Json.obj("images" -> JsArray(fileIds.map { fileId =>
+      Json.obj("url" -> JsString(controllers.api.routes.ImageAssetsController.at(fileId).absoluteURL()))
     }))
   }
 

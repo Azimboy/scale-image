@@ -94,9 +94,8 @@ class ImageService @Inject()(val configuration: Configuration,
   private def save(image: Image): Future[Either[String, String]] = {
     Future {
       val fileName = s"${Random.alphanumeric.take(10).mkString}.png"
-      val filePath = TempFilesPath.resolve(fileName)
-      image.output(filePath)
-      Right(filePath.subpath(1, filePath.getNameCount).toString)
+      image.output(TempFilesPath.resolve(fileName))
+      Right(fileName)
     }.recover { case error =>
       logger.error(s"Error occurred during saving image.", error)
       Left("Error occurred during saving image.")

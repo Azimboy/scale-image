@@ -10,6 +10,8 @@ resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
 scalaVersion := "2.12.8"
 
+maintainer := "azimboyodilov@gmail.com"
+
 scalacOptions += "-Ypartial-unification"
 
 val commonLibs: Seq[ModuleID] = Seq(

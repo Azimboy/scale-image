@@ -1,8 +1,10 @@
-GET     /                           controllers.api.ImageController.index
-GET     /favicon.ico                controllers.Assets.at(path="/public", file="favicon.ico")
+GET     /                           @controllers.api.ImageController.index
+GET     /favicon.ico                @controllers.Assets.at(path="/public", file="favicon.ico")
 
-POST    /api/file-upload            controllers.api.ImageController.fileUpload(width: Int ?= 100, height: Int ?= 100)
-POST    /api/data-upload            controllers.api.ImageController.dataUpload(width: Int ?= 100, height: Int ?= 100)
-POST    /api/from-url               controllers.api.ImageController.fromUrl(url, width: Int ?= 100, height: Int ?= 100)
+POST    /api/file-upload            @controllers.api.ImageController.fileUpload(width: Int ?= 100, height: Int ?= 100)
+POST    /api/data-upload            @controllers.api.ImageController.dataUpload(width: Int ?= 100, height: Int ?= 100)
+POST    /api/from-url               @controllers.api.ImageController.fromUrl(url, width: Int ?= 100, height: Int ?= 100)
 
-GET     /assets/*file               controllers.Assets.versioned(file)
+GET     /api/image/:fileId          @controllers.api.ImageAssetsController.at(fileId: String)
+
+GET     /assets/*file               @controllers.Assets.versioned(file)
