@@ -35,17 +35,6 @@ class ImageService @Inject()(val configuration: Configuration,
 
   Files.createDirectories(TempFilesPath)
 
-  def validate(files: List[FilePart[TemporaryFile]], dimension: Dimension): Future[Either[String, List[String]]] = {
-    files.find(file => !file.isImage || file.isTooLarge) match {
-      case Some(file) =>
-        logger.warn(file.errorMessage)
-        Future.successful(Left(file.errorMessage))
-      case None =>
-        val tempFiles = files.map(file => TempFile(Some(file.filename), file.contentType, getBytes(file.ref.path)))
-        process(tempFiles, dimension)
-    }
-  }
-
   def download(url: String): Future[Either[String, Path]] = {
     ws.url(url).withMethod("GET").stream().flatMap { response =>
       if (response.status == 200) {
@@ -68,11 +57,29 @@ class ImageService @Inject()(val configuration: Configuration,
     }
   }
 
+  def validate(files: List[FilePart[TemporaryFile]], dimension: Dimension): Future[Either[String, List[String]]] = {
+    files.find(file => !file.isImage || file.isTooLarge) match {
+      case Some(file) =>
+        logger.warn(file.errorMessage)
+        Future.successful(Left(file.errorMessage))
+      case None =>
+        val tempFiles = files.map(file => TempFile(Some(file.filename), file.contentType, getBytes(file.ref.path)))
+        process(tempFiles, dimension)
+    }
+  }
+
   def process(tempFiles: List[TempFile], dimension: Dimension): Future[Either[String, List[String]]] = {
     tempFiles.map { tempFile =>
       logger.info(s"Processing file: ${tempFile.fileName}. ContentType: ${tempFile.contentType}. Size: ${getSize(tempFile.content.length)}.")
-      getResults(tempFile.content, dimension).value
+      scaleAndSave(tempFile.content, dimension).value
     }.sequence.map(accumulateResults)
+  }
+
+  private def scaleAndSave(bytes: Array[Byte], dimension: Dimension): EitherT[Future, String, String] = {
+    for {
+      image <- EitherT(scale(bytes, dimension))
+      path <- EitherT(save(image))
+    } yield path
   }
 
   private def scale(bytes: Array[Byte], dimension: Dimension): Future[Either[String, Image]] = {
@@ -94,13 +101,6 @@ class ImageService @Inject()(val configuration: Configuration,
       logger.error(s"Error occurred during saving image.", error)
       Left("Error occurred during saving image.")
     }
-  }
-
-  private def getResults(bytes: Array[Byte], dimension: Dimension): EitherT[Future, String, String] = {
-    for {
-      image <- EitherT(scale(bytes, dimension))
-      path <- EitherT(save(image))
-    } yield path
   }
 
   private def accumulateResults(results: List[Either[String, String]]): Either[String, List[String]] = {

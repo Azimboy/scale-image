@@ -7,7 +7,7 @@ import utils.TestFileUtils.{configuration, getFileParts, getTempFiles, mockWs}
 
 import scala.concurrent.ExecutionContext
 
-class ImageServiceTest extends AsyncFunSuite with MustMatchers {
+class ImageServiceSpec extends AsyncFunSuite with MustMatchers {
 
   implicit val ec = ExecutionContext.Implicits.global
 

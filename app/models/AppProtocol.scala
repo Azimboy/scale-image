@@ -13,6 +13,4 @@ object AppProtocol {
   case class Dimension(width: Int, height: Int)
   case class TempFile(fileName: Option[String], contentType: Option[String], content: Array[Byte])
 
-  type FileResult = Either[String, Seq[String]]
-
 }

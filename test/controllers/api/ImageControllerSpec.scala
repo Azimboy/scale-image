@@ -15,7 +15,7 @@ import utils.TestFileUtils._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ImageControllerTest extends PlaySpec with MockitoSugar {
+class ImageControllerSpec extends PlaySpec with MockitoSugar {
 
   implicit val ec = ExecutionContext.Implicits.global
 

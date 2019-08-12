@@ -12,19 +12,19 @@ import utils.TestFileUtils._
 
 class IntegrationSpec extends PlaySpec with GuiceOneAppPerSuite {
 
-  override def fakeApplication(): Application = {
-    new GuiceApplicationBuilder()
-      .in(Mode.Test)
-      .overrides(bind[Configuration].toInstance(configuration))
-      .overrides(bind[WSClient].toInstance(mockWs))
-      .build()
-  }
+//  override def fakeApplication(): Application = {
+//    new GuiceApplicationBuilder()
+////      .in(Mode.Test)
+//      .overrides(bind[Configuration].toInstance(configuration))
+////      .overrides(bind[WSClient].toInstance(mockWs))
+//      .build()
+//  }
 
   "Scale Image" should {
 
     "successfully open file upload UI" in  {
       route(app, FakeRequest(GET, "/")).map { result =>
-        status(result) mustBe Some(OK)
+        status(result) mustBe OK
         contentType(result) mustBe Some(HTML)
         contentAsString(result) must include("Scale Image")
       }
@@ -32,14 +32,14 @@ class IntegrationSpec extends PlaySpec with GuiceOneAppPerSuite {
 
     "show page not found" in  {
       route(app, FakeRequest(GET, "/unknown")).map { result =>
-        status(result) mustBe Some(NOT_FOUND)
+        status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe "Page not found."
       }
     }
 
     "successfully upload single file" in  {
       route(app, apiFileUpload("test1.png")).map { result =>
-        status(result) mustBe Some(OK)
+        status(result) mustBe OK
         contentType(result) mustBe Some(JSON)
       }
     }
