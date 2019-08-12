@@ -4,14 +4,13 @@ import org.apache.commons.io.FileUtils
 import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.inject.bind
-import play.api.{Application, Configuration}
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsNull
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.TestFileUtils._
 import utils.StubData._
+import utils.TestFileUtils._
 
 class IntegrationSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterAll {
 
@@ -25,9 +24,9 @@ class IntegrationSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAf
     FileUtils.copyFileToDirectory(getTestJpgFile.toFile, TempFilesPath.toFile)
   }
 
-//  override def afterAll() = {
-//    FileUtils.cleanDirectory(TempFilesPath.toFile)
-//  }
+  override def afterAll() = {
+    FileUtils.cleanDirectory(TempFilesPath.toFile)
+  }
 
   "Scale Image Application" should {
 
