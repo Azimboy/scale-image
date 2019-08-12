@@ -1,22 +1,32 @@
 package controllers.api
 
+import java.nio.file.{Files, Paths}
+
 import javax.inject.{Inject, Singleton}
+import play.api.Configuration
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.ImageService
 import utils.FileUtils
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ImageAssetsController @Inject()(val cc: ControllerComponents,
-                                      val imageService: ImageService)
+                                      val configuration: Configuration)
                                      (implicit val ec: ExecutionContext)
   extends AbstractController(cc) {
+
+  val appConf = configuration.get[Configuration]("application")
+  val tempFilesFolder = appConf.get[String]("temp-files-path")
 
   def at(fileName: String) = Action {
     require(FileUtils.isCorrectFileName(fileName))
 
-    Ok.sendPath(imageService.TempFilesPath.resolve(fileName))
+    val filePath = Paths.get(tempFilesFolder).resolve(fileName)
+    if (Files.exists(filePath)) {
+      Ok.sendPath(filePath)
+    } else {
+      NotFound("File not found.")
+    }
   }
 
 }
