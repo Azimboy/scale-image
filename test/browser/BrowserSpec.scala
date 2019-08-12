@@ -15,7 +15,7 @@ class BrowserSpec extends PlaySpec
 
       go to ("http://localhost:" + port)
 
-      pageSource must include ("Square Preview")
+      pageSource must include ("Scale Image")
     }
 
   }

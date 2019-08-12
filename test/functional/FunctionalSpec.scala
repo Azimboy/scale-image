@@ -27,7 +27,7 @@ class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite {
 
       status(index) mustBe Status.OK
       contentType(index) mustBe Some("text/html")
-      contentAsString(index) must include("Square Preview")
+      contentAsString(index) must include("Scale Image")
     }
 
   }

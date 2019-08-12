@@ -60,6 +60,12 @@ class ImageServiceTest extends AsyncFunSuite with MustMatchers {
     }
   }
 
+  test("fail validate pdf files") {
+    imageService.validate(getFileParts("test3.jpg", "test7.pdf", "test5.jpg"), dimension).map { value =>
+      value mustBe Left("Uploaded file (test7.pdf) is not a valid image. Only JPG and PNG files are allowed.")
+    }
+  }
+
   test("successfully process file") {
     imageService.process(getTempFiles(getFileParts("test1.png")), dimension).map { value =>
       value.map(_.size) mustBe Right(1)
