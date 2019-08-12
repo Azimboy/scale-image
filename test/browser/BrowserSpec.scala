@@ -9,7 +9,7 @@ class BrowserSpec extends PlaySpec
   with HtmlUnitFactory
   with ServerProvider {
 
-  "Application" should {
+  "Scale Image Browser" should {
 
     "work from within a browser" in {
 

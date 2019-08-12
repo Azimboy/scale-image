@@ -63,6 +63,23 @@ class ImageControllerSpec extends PlaySpec with MockitoSugar {
       contentType(result) mustBe Some(JSON)
     }
 
+    "empty file upload with status OK" in {
+      when(mockImageService.validate(any(), any())).thenReturn(futureRight)
+      val result = fileUpload()
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some(JSON)
+    }
+
+    "fail upload invalid file with status BAD_REQUEST" in {
+      when(mockImageService.validate(any(), any())).thenReturn(futureLeft)
+      val result = fileUpload("invalid-image.jpg")
+
+      status(result) mustBe BAD_REQUEST
+      println(contentAsString(result))
+      contentType(result) mustBe Some(TEXT)
+    }
+
     "fail upload multiple files with status BAD_REQUEST" in {
       when(mockImageService.validate(any(), any())).thenReturn(futureLeft)
       val result = fileUpload("test6.csv")

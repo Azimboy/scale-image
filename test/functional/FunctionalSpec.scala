@@ -20,19 +20,10 @@ class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   }
 
-  "ImageController" should {
+  "Application" should {
 
     "render the index page" in {
       val index = route(app, FakeRequest(GET, "/")).get
-
-      status(index) mustBe Status.OK
-      contentType(index) mustBe Some("text/html")
-      contentAsString(index) must include("Scale Image")
-    }
-
-    "render the index page" in {
-      val ss = FakeRequest(GET, "/api/file-upload")
-      val index = route(app, ss).get
 
       status(index) mustBe Status.OK
       contentType(index) mustBe Some("text/html")

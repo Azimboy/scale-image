@@ -96,7 +96,7 @@ object TestFileUtils {
   }
 
   def apiFromUrl(url: String) = {
-    FakeRequest(POST, "/api/from-url")
+    FakeRequest(POST, s"/api/from-url?url=$url")
   }
 
 }

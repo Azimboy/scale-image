@@ -26,6 +26,12 @@ object StubData {
     ]
   }""")
 
+  val base64TxtFile = Json.parse("""{
+    "file": [
+      { "content": "dGVzdGluZyBmaWxlCg==" }
+    ]
+  }""")
+
   val invalidJson = Json.parse("""{
     "file": [
       { "content": "iVBORw0KGgoAAAANSUhEUgAAAMoAAACyCAYAAAADFFAEAAAABHNCSVQICAgIfAhkiAAAABl0RVh0" }
