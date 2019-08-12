@@ -37,13 +37,15 @@ class ImageAssetsControllerSpec extends PlaySpec with BeforeAndAfterAll {
 
       status(result) mustBe NOT_FOUND
       contentType(result) mustBe Some(TEXT)
+      contentAsString(result) mustBe "File not found."
     }
 
     "fail download not valid file name" in {
       val result = controller.at("t[]//est2.png")(FakeRequest())
 
-      status(result) mustBe NOT_FOUND
+      status(result) mustBe BAD_REQUEST
       contentType(result) mustBe Some(TEXT)
+      contentAsString(result) mustBe "Please provide a valid file name."
     }
 
   }

@@ -35,6 +35,4 @@ val loggingLibs: Seq[ModuleID] = Seq(
   "org.codehaus.janino" % "janino" % "3.0.7"
 )
 
-libraryDependencies ++=
-  Seq( jdbc , ehcache , ws , guice ) ++
-    commonLibs ++ loggingLibs
+libraryDependencies ++= Seq( ws , guice ) ++ commonLibs ++ loggingLibs

@@ -4,6 +4,9 @@ import org.apache.commons.io.FileUtils
 import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.bind
+import play.api.{Application, Configuration}
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsNull
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -12,9 +15,19 @@ import utils.StubData._
 
 class IntegrationSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterAll {
 
-  override def afterAll() {
-    FileUtils.cleanDirectory(TempFilesPath.toFile)
+  override def fakeApplication(): Application = {
+    new GuiceApplicationBuilder()
+      .configure(configuration)
+      .build()
   }
+
+  override def beforeAll() = {
+    FileUtils.copyFileToDirectory(getTestJpgFile.toFile, TempFilesPath.toFile)
+  }
+
+//  override def afterAll() = {
+//    FileUtils.cleanDirectory(TempFilesPath.toFile)
+//  }
 
   "Scale Image Application" should {
 
@@ -127,6 +140,29 @@ class IntegrationSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAf
         status(result) mustBe BAD_REQUEST
         contentType(result) mustBe Some(TEXT)
         contentAsString(result) mustBe "Couldn't download file. ResponseStatus: 404"
+      }
+    }
+
+    "successfully get assets file " in {
+      route(app, FakeRequest(GET, "/api/image/test2.jpg")).map { result =>
+        status(result) mustBe OK
+        contentType(result) mustBe Some("image/jpeg")
+      }
+    }
+
+    "fail get assets file" in {
+      route(app, FakeRequest(GET, "/api/image/test1.jpg")).map { result =>
+        status(result) mustBe NOT_FOUND
+        contentType(result) mustBe Some(TEXT)
+        contentAsString(result) mustBe "File not found."
+      }
+    }
+
+    "fail download not valid file name" in {
+      route(app, FakeRequest(GET, "/api/image/sd:**cxvt2")).map { result =>
+        status(result) mustBe BAD_REQUEST
+        contentType(result) mustBe Some(TEXT)
+        contentAsString(result) mustBe "Please provide a valid file name."
       }
     }
 

@@ -19,13 +19,15 @@ class ImageAssetsController @Inject()(val cc: ControllerComponents,
   val tempFilesFolder = appConf.get[String]("temp-files-path")
 
   def at(fileName: String) = Action {
-    require(FileUtils.isCorrectFileName(fileName))
-
-    val filePath = Paths.get(tempFilesFolder).resolve(fileName)
-    if (Files.exists(filePath)) {
-      Ok.sendPath(filePath)
+    if (FileUtils.isCorrectFileName(fileName)) {
+      val filePath = Paths.get(tempFilesFolder).resolve(fileName)
+      if (Files.exists(filePath)) {
+        Ok.sendPath(filePath)
+      } else {
+        NotFound("File not found.")
+      }
     } else {
-      NotFound("File not found.")
+      BadRequest("Please provide a valid file name.")
     }
   }
 
