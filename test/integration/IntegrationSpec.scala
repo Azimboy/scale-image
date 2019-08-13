@@ -138,7 +138,7 @@ class IntegrationSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAf
       route(app, apiFromUrl("http://localhost/assest/image/some.jpg")).map { result =>
         status(result) mustBe BAD_REQUEST
         contentType(result) mustBe Some(TEXT)
-        contentAsString(result) mustBe "Couldn't download file. ResponseStatus: 404"
+        contentAsString(result) mustBe "Couldn't connect to image url."
       }
     }
 
