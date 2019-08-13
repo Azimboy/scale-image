@@ -1,6 +1,6 @@
 # Scale Image
 
-This application is based on [PlayFramework](https://www.playframework.com/) and uses a [Srcimage](https://github.com/sksamuel/scrimage) library to modifying image.
+This application is based on [PlayFramework](https://www.playframework.com/) and uses a [Srcimage](https://github.com/sksamuel/scrimage) library to modify images.
 
 ## Getting Started
 
