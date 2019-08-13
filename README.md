@@ -134,7 +134,7 @@ Data Example:
 #### POST /api/from-url?url=image_url&width=100&height=100
 
 ```
-localhost:9000/api/file-upload?width=100&height=100
+localhost:9000/api/from-url?url=image_url&width=100&height=100
 ```
 
 Accepts image url as query parameter and returns image url as JSON
