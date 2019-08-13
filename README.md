@@ -2,6 +2,16 @@
 
 This application is based on [PlayFramework](https://www.playframework.com/) and uses a [Srcimage](https://github.com/sksamuel/scrimage) library to modify images.
 
+**Project includes following:**
+- Ability to upload multiple files from UI
+- Ability to upload multiple files from API request.
+- Ability to accept multipart/form-data requests.
+- Ability to accept JSON requests with BASE64 encoded images.
+- Ability to upload images at a given URL (image posted somewhere on the Internet).
+- Create a square preview of the image for a given width and height (default size 100px by 100px).
+- Tests (Unit, Browser, Functional and Integration).
+- Docker integration
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing 
@@ -88,3 +98,45 @@ Test results
 [info] Passed: Total 46, Failed 0, Errors 0, Passed 46
 [success] Total time: 118 s, completed Aug 13, 2019 2:28:22 PM
 ```
+
+## API documentation
+
+#### POST /api/file-upload?width=100&height=100
+
+```
+localhost:9000/api/file-upload?width=100&height=100
+```
+
+Accepts `multipart/form-data` requests with multiple files and returns image urls as JSON
+
+---
+
+#### POST /api/data-upload?width=100&height=100
+
+```
+localhost:9000/api/data-upload?width=100&height=100
+```
+
+Accepts `application/json` requests with Dase64 encoded file bytes and returns image urls as JSON
+
+Data Example:
+
+```
+{
+  "file": [
+    { "content": "iVBORw0KGgoAAAANSUhEUgAAAMoAAACyCAYAAAADFFAEAAAABHNCSVQICAgIfAhkiAAAABl0RVh0" },
+    { "content": "iVBORw0KGgoAAAANSUhEUgAAAMoAAACyCAYAAAADFFAEAAAABHNCSVQICAgIfAhkiAAAABl0RVh0" },
+  ]
+}
+```
+---
+
+#### POST /api/from-url?url=image_url&width=100&height=100
+
+```
+localhost:9000/api/file-upload?width=100&height=100
+```
+
+Accepts image url as query parameter and returns image url as JSON
+
+---
