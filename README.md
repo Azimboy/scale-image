@@ -86,7 +86,7 @@ To execute the entire test suite run this command:
 sbt test
 ```
 
-Test results
+Test results:
 
 ```
 [info] ScalaTest
