@@ -75,3 +75,16 @@ To execute the entire test suite run this command:
 ```
 sbt test
 ```
+
+Test results
+
+```
+[info] ScalaTest
+[info] Run completed in 1 minute, 34 seconds.
+[info] Total number of tests run: 46
+[info] Suites: completed 6, aborted 0
+[info] Tests: succeeded 46, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[info] Passed: Total 46, Failed 0, Errors 0, Passed 46
+[success] Total time: 118 s, completed Aug 13, 2019 2:28:22 PM
+```
